@@ -36,7 +36,7 @@ def load_images(types,path):
 				list_photos.append(file)
 	return list_photos
 
-def process(images_path, output_path):
+def process(images_path, output_path, reference_path):
 	
 	# Font settings
 	os.environ['QT_QPA_FONTDIR'] = '/usr/share/fonts/truetype/dejavu/'
@@ -44,7 +44,7 @@ def process(images_path, output_path):
 	# Below code was to enable all available GPUs, was throwing an error.
 	#PhotoScan.app.gpu_mask = 2 ** len(PhotoScan.app.enumGPUDevices()) - 1 #setting GPU mask
 	
-	PhotoScan.app.gpu_mask = 1 # gpu_mask is a bitmask. 3 in binary = 11 so only two GPUs are used.
+	PhotoScan.app.gpu_mask = 12 # gpu_mask is a bitmask. 3 in binary = 11 so only two GPUs are used.
 	if PhotoScan.app.gpu_mask:
 		PhotoScan.app.cpu_enable = False 
 	else:
@@ -67,6 +67,7 @@ def process(images_path, output_path):
 	mapping = PhotoScan.MappingMode.GenericMapping #Build texture mapping
 	atlas_size = 4096
 	TYPES = ["jpg", "jpeg", "tif", "tiff", "png"]
+
 
 	# Load images into master list of fore and aft.
 	list_photos_master = load_images(TYPES, images_path)
@@ -106,24 +107,26 @@ def process(images_path, output_path):
 	print("Chunk label: ", str(chunk.label))
 
 	# Add Images to Chunk
-
 	chunk.addPhotos(list_photos_master)
-	#chunk.addPhotos(list_photos_fore)
-	#chunk.addPhotos(list_photos_aft)
+	
+	# Load ref file.
+	chunk.loadReference(path=reference_path, format=PhotoScan.ReferenceFormat.ReferenceFormatCSV, columns='zanxy', delimiter=',')
 
-	# Create Sensor definitions 
+	# Set coordinate system for lat lon values.
+	chunk.crs = PhotoScan.CoordinateSystem("EPSG::4326")
+
+ 
 	# TODO Load calibration parameters from file
 
-	# PhotoScan.Sensor.focal_length # in mm
 
-
+	# Create Sensor definitions
 	sensor_fore              = chunk.addSensor()
 	sensor_fore.label        = "Fore Sensor"
 	sensor_fore.type         = PhotoScan.Sensor.Type.Frame
 	sensor_fore.width        = chunk.cameras[-1].sensor.width
 	sensor_fore.height       = chunk.cameras[-1].sensor.height
 	sensor_fore.pixel_size   = [0.00345, 0.00345]
-	sensor_fore.focal_length = 10.4
+	sensor_fore.focal_length = 6.7 # Focal length is 10.4mm, 14.6mm effective length in water.
 
 	sensor_aft              = chunk.addSensor()
 	sensor_aft.label        = "Aft Sensor"
@@ -131,7 +134,7 @@ def process(images_path, output_path):
 	sensor_aft.width        = chunk.cameras[-1].sensor.width
 	sensor_aft.height       = chunk.cameras[-1].sensor.height
 	sensor_aft.pixel_size   = [0.00345, 0.00345]
-	sensor_aft.focal_length = 10.4
+	sensor_aft.focal_length = 6.7
 
 	for camera in chunk.cameras:
 		if "F" in camera.label:
@@ -210,6 +213,7 @@ def main():
 
 	parser = argparse.ArgumentParser( description='This script processes images in the input folder with PhotoScan to perform 3D reconstructions.')
 	parser.add_argument("images_path", type=str,  help="Path to the folder with images to be processed. Both fore and aft.")
+	parser.add_argument('ref_file', type=str, help='Path to reference file for image data.')
 	parser.add_argument("-o", "--output", help="Output folder to store the Photoscan output. ")
 
 	args = parser.parse_args()
@@ -222,7 +226,7 @@ def main():
 		os.makedirs(args.output)
 
 	
-	process(args.images_path, args.output)
+	process(args.images_path, args.output, args.ref_file)
 	t1 = time.time()
 	t1 -= t0
 	t1 = float(t1)
