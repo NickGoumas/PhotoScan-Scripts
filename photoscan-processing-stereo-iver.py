@@ -72,28 +72,6 @@ def process(images_path, output_path, reference_path):
 	# Load images into master list of fore and aft.
 	list_photos_master = load_images(TYPES, images_path)
 
-	'''
-	list_photos_fore = []
-	list_photos_aft  = []
-	for image_name in list_photos_master:
-		if "F" in image_name:
-			list_photos_fore.append(image_name)
-			print("Adding ", image_name, "to fore list.")
-		elif "A" in image_name:
-			list_photos_aft.append(image_name)
-			print("Adding ", image_name, "to aft list.")
-		else:
-			print("Fore or aft not determined for: ", image_name)
-
-	# Check if each list has some images.
-	if not(len(list_photos_fore)):
-		print("No fore images found")
-		return False
-	if not(len(list_photos_aft)):
-		print("No aft images found")
-		return False	
-	'''
-
 
 	# Create Photoscan document
 	project_file = os.path.join(output_path,"Model.psx")
@@ -190,8 +168,20 @@ def process(images_path, output_path, reference_path):
 	doc.save()
 	
 	###export model
-	chunk.exportModel(path = os.path.join(output_path,chunk.label+ ".obj"), binary=False, texture_format=PhotoScan.ImageFormatJPEG, texture=True, normals=False, colors=False, cameras=False, format = PhotoScan.ModelFormatOBJ)
+	chunk.exportModel(path = os.path.join(output_path, chunk.label+ ".obj"), binary=False, texture_format=PhotoScan.ImageFormatJPEG, texture=True, normals=False, colors=False, cameras=False, format = PhotoScan.ModelFormatOBJ)
 	
+	### Export GeoTiff file
+	chunk.exportDem(path = os.path.join(output_path, chunk.label + '.jpeg'),
+					image_format = Photoscan.ImageFormat.ImageFormatJPEG,
+					raster_transform = Photoscan.RasterTransformType.RasterTransformPalette,
+					projection = chunk.crs,
+					nodata = -32767,
+					write_kml = True,
+					write_world = True,
+					write_scheme = True,
+					tiff_big = False)
+
+
 	### Export camera poses
 	export_camera_pose(chunk, os.path.join(output_path, chunk.label+"_camera_pose.csv"))
 	
