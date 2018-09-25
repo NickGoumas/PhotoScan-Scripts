@@ -36,7 +36,7 @@ def load_images(types,path):
 				list_photos.append(file)
 	return list_photos
 
-def process(images_path, output_path, reference_path):
+def process(images_path, output_path, reference_path, model_name):
 	
 	# Font settings
 	os.environ['QT_QPA_FONTDIR'] = '/usr/share/fonts/truetype/dejavu/'
@@ -78,7 +78,7 @@ def process(images_path, output_path, reference_path):
 	doc = PhotoScan.Document()	
 	doc.save(project_file)
 	chunk = doc.addChunk()
-	chunk.label = args.name
+	chunk.label = model_name
 
 	
 	print("Saving Photoscan project to: ", project_file)
@@ -262,7 +262,7 @@ def main():
 		os.makedirs(args.output)
 
 	
-	process(args.images_path, args.output, args.ref_file)
+	process(args.images_path, args.output, args.ref_file, args.name)
 	t1 = time.time()
 	t1 -= t0
 	t1 = float(t1)
