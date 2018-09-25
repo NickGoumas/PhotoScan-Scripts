@@ -172,8 +172,8 @@ def process(images_path, output_path, reference_path):
 	
 	### Export GeoTiff file
 	chunk.exportDem(path = os.path.join(output_path, chunk.label + '.jpeg'),
-					image_format = Photoscan.ImageFormat.ImageFormatJPEG,
-					raster_transform = Photoscan.RasterTransformType.RasterTransformPalette,
+					image_format = PhotoScan.ImageFormat.ImageFormatJPEG,
+					raster_transform = PhotoScan.RasterTransformType.RasterTransformPalette,
 					projection = chunk.crs,
 					nodata = -32767,
 					write_kml = True,
