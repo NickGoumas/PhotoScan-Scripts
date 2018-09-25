@@ -249,7 +249,7 @@ def main():
 	parser = argparse.ArgumentParser( description='This script processes images in the input folder with PhotoScan to perform 3D reconstructions.')
 	parser.add_argument('images_path', type=str,  help='Path to the folder with images to be processed. Both fore and aft.')
 	parser.add_argument('ref_file', type=str, help='Path to reference file for image data.')
-	perser.add_argument('-n', '--name', help='Model name.')
+	parser.add_argument('-n', '--name', help='Model name.')
 	parser.add_argument('-o', '--output', help='Output folder to store the Photoscan output.')
 
 	args = parser.parse_args()
