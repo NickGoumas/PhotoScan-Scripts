@@ -170,9 +170,9 @@ def process(images_path, output_path, reference_path):
 	###export model
 	chunk.exportModel(path = os.path.join(output_path, chunk.label+ ".obj"), binary=False, texture_format=PhotoScan.ImageFormatJPEG, texture=True, normals=False, colors=False, cameras=False, format = PhotoScan.ModelFormatOBJ)
 	
-	# Export ortho
-	chunk.exportOrthophoto(path = os.path.join(output_path, chunk.label+'_ortho.tif'), blending = blending, project = chunk.crs)
-	
+	# Export orthomosaic
+	chunk.exportOrthomosaic(path = os.path.join(output_path, chunk.label+'_ortho.tif'), projection = chunk.crs)
+
 	'''
 	### Export GeoTiff file
 	chunk.exportDem(path = os.path.join(output_path, chunk.label + '.jpeg'),
