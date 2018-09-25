@@ -170,11 +170,6 @@ def process(images_path, output_path, reference_path):
 	###export model
 	chunk.exportModel(path = os.path.join(output_path, chunk.label+ ".obj"), binary=False, texture_format=PhotoScan.ImageFormatJPEG, texture=True, normals=False, colors=False, cameras=False, format = PhotoScan.ModelFormatOBJ)
 	
-	'''
-	# Export orthomosaic
-	chunk.buildOrthomosaic(surface = PhotoScan.DataSource, blending = blending, fill_holes = True)
-	chunk.exportOrthomosaic(path = os.path.join(output_path, chunk.label+'_ortho.tif'), projection = chunk.crs)
-	'''
 	
 	### Export GeoTiff file
 	chunk.buildDem(source = source, interpolation = interpolation, projection = chunk.crs, progress = progress_print)
@@ -187,6 +182,10 @@ def process(images_path, output_path, reference_path):
 					write_world = True,
 					write_scheme = True,
 					tiff_big = False)
+
+	# Export orthomosaic
+	chunk.buildOrthomosaic(surface = source, blending = blending, fill_holes = True)
+	chunk.exportOrthomosaic(path = os.path.join(output_path, chunk.label+'_ortho.tif'), projection = chunk.crs)
 
 	### Export camera poses
 	export_camera_pose(chunk, os.path.join(output_path, chunk.label+"_camera_pose.csv"))
