@@ -171,6 +171,7 @@ def process(images_path, output_path, reference_path):
 	chunk.exportModel(path = os.path.join(output_path, chunk.label+ ".obj"), binary=False, texture_format=PhotoScan.ImageFormatJPEG, texture=True, normals=False, colors=False, cameras=False, format = PhotoScan.ModelFormatOBJ)
 	
 	# Export orthomosaic
+	chunk.buildOrthomosaic(surface = surface, blending = blending, fill_holes = True)
 	chunk.exportOrthomosaic(path = os.path.join(output_path, chunk.label+'_ortho.tif'), projection = chunk.crs)
 
 	'''
