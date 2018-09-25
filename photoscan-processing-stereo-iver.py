@@ -78,7 +78,7 @@ def process(images_path, output_path, reference_path):
 	doc = PhotoScan.Document()	
 	doc.save(project_file)
 	chunk = doc.addChunk()
-	chunk.label = "Model"
+	chunk.label = args.name
 
 	
 	print("Saving Photoscan project to: ", project_file)
@@ -145,7 +145,15 @@ def process(images_path, output_path, reference_path):
 	print("Removed ",badImages," from chunk")
 
 	### Align photos
-	chunk.matchPhotos(accuracy = accuracy, generic_preselection = generic_preselection, reference_preselection = reference_preselection, filter_mask = False, keypoint_limit = keypoints, tiepoint_limit = tiepoints, progress=progress_print)
+	chunk.matchPhotos(
+		accuracy = accuracy,
+		generic_preselection = generic_preselection,
+		reference_preselection = reference_preselection,
+		filter_mask = False,
+		keypoint_limit = keypoints,
+		tiepoint_limit = tiepoints,
+		progress=progress_print)
+
 	chunk.alignCameras()
 	chunk.optimizeCameras()
 	chunk.resetRegion()
@@ -153,45 +161,77 @@ def process(images_path, output_path, reference_path):
 	doc.save()	
 				
 	###building dense cloud
-	chunk.buildDepthMaps(quality = quality, filter = filtering, progress=progress_print)
-	chunk.buildDenseCloud(point_colors = True, progress=progress_print)
+	chunk.buildDepthMaps(
+		quality = quality,
+		filter = filtering,
+		progress=progress_print)
+	chunk.buildDenseCloud(
+		point_colors = True,
+		progress=progress_print)
 	doc.save()
 	
 	###building mesh
-	chunk.buildModel(surface = surface, source = source, interpolation = interpolation, face_count = face_num, progress=progress_print)
+	chunk.buildModel(
+		surface = surface,
+		source = source,
+		interpolation = interpolation,
+		face_count = face_num,
+		progress=progress_print)
 	doc.save()
 
 
 	###build texture
-	chunk.buildUV(mapping = mapping, count = 1, progress=progress_print)
-	chunk.buildTexture(blending = blending, size = atlas_size, progress=progress_print)
+	chunk.buildUV(
+		mapping = mapping,
+		count = 1, progress=progress_print)
+	chunk.buildTexture(
+		blending = blending,
+		size = atlas_size,
+		progress=progress_print)
 	doc.save()
 	
 	###export model
-	chunk.exportModel(path = os.path.join(output_path, chunk.label+ ".obj"), binary=False, texture_format=PhotoScan.ImageFormatJPEG, texture=True, normals=False, colors=False, cameras=False, format = PhotoScan.ModelFormatOBJ)
-	
+	chunk.exportModel(
+		path = os.path.join(output_path, chunk.label+ ".obj"),
+		binary=False,
+		texture_format=PhotoScan.ImageFormatJPEG,
+		texture=True,
+		normals=False,
+		colors=False,
+		cameras=False,
+		format = PhotoScan.ModelFormatOBJ)
 	
 	### Export GeoTiff file
-	chunk.buildDem(source = source, interpolation = interpolation, projection = chunk.crs, progress = progress_print)
-	chunk.exportDem(path = os.path.join(output_path, chunk.label + '.jpeg'),
-					image_format = PhotoScan.ImageFormat.ImageFormatJPEG,
-					raster_transform = PhotoScan.RasterTransformType.RasterTransformPalette,
-					projection = chunk.crs,
-					nodata = -32767,
-					write_kml = True,
-					write_world = True,
-					write_scheme = True,
-					tiff_big = False)
+	chunk.buildDem(
+		source = source,
+		interpolation = interpolation,
+		projection = chunk.crs,
+		progress = progress_print)
+	chunk.exportDem(
+		path = os.path.join(output_path, chunk.label + '_DEM.jpeg'),
+		image_format = PhotoScan.ImageFormat.ImageFormatJPEG,
+		raster_transform = PhotoScan.RasterTransformType.RasterTransformPalette,
+		projection = chunk.crs,
+		nodata = -32767,
+		write_kml = True,
+		write_world = True,
+		write_scheme = True,
+		tiff_big = True)
 
 	# Export orthomosaic
-	chunk.buildOrthomosaic(surface = PhotoScan.DataSource.ElevationData, blending = blending, fill_holes = True)
-	chunk.exportOrthomosaic(path = os.path.join(output_path, chunk.label+'_ortho.tif'), projection = chunk.crs)
+	chunk.buildOrthomosaic(
+		surface = PhotoScan.DataSource.ElevationData,
+		blending = blending,
+		fill_holes = True)
+	chunk.exportOrthomosaic(
+		path = os.path.join(output_path, chunk.label + '_orthomosaic.tif'),
+		projection = chunk.crs)
 
 	### Export camera poses
-	export_camera_pose(chunk, os.path.join(output_path, chunk.label+"_camera_pose.csv"))
+	export_camera_pose(chunk, os.path.join(output_path, chunk.label + '_camera_pose.csv'))
 	
 	### Generate report 
-	chunk.exportReport(os.path.join(output_path, "Report_"+chunk.label+".pdf"))
+	chunk.exportReport(os.path.join(output_path, chunk.label + '_report.pdf'))
 	print("Processed " + chunk.label)
 	return True
 
@@ -207,9 +247,10 @@ def main():
 	print("Script started...")
 
 	parser = argparse.ArgumentParser( description='This script processes images in the input folder with PhotoScan to perform 3D reconstructions.')
-	parser.add_argument("images_path", type=str,  help="Path to the folder with images to be processed. Both fore and aft.")
+	parser.add_argument('images_path', type=str,  help='Path to the folder with images to be processed. Both fore and aft.')
 	parser.add_argument('ref_file', type=str, help='Path to reference file for image data.')
-	parser.add_argument("-o", "--output", help="Output folder to store the Photoscan output. ")
+	perser.add_argument('-n', '--name', help='Model name.')
+	parser.add_argument('-o', '--output', help='Output folder to store the Photoscan output.')
 
 	args = parser.parse_args()
 	
