@@ -44,7 +44,7 @@ def process(images_path, output_path, reference_path):
 	# Below code was to enable all available GPUs, was throwing an error.
 	#PhotoScan.app.gpu_mask = 2 ** len(PhotoScan.app.enumGPUDevices()) - 1 #setting GPU mask
 	
-	PhotoScan.app.gpu_mask = 12 # gpu_mask is a bitmask. 3 in binary = 11 so only two GPUs are used.
+	PhotoScan.app.gpu_mask = 15 # gpu_mask is a bitmask. 3 in binary = 11 so only two GPUs are used.
 	if PhotoScan.app.gpu_mask:
 		PhotoScan.app.cpu_enable = False 
 	else:
