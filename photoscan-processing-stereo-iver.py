@@ -184,7 +184,7 @@ def process(images_path, output_path, reference_path):
 					tiff_big = False)
 
 	# Export orthomosaic
-	chunk.buildOrthomosaic(surface = source, blending = blending, fill_holes = True)
+	chunk.buildOrthomosaic(surface = PhotoScan.DataSource.ElevationData, blending = blending, fill_holes = True)
 	chunk.exportOrthomosaic(path = os.path.join(output_path, chunk.label+'_ortho.tif'), projection = chunk.crs)
 
 	### Export camera poses
