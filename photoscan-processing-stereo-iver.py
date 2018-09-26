@@ -55,14 +55,18 @@ def process(images_path, output_path, reference_path, model_name):
 	accuracy = PhotoScan.Accuracy.HighAccuracy  #align photos accuracy
 	reference_preselection = False
 	generic_preselection = True
-	keypoints = 40000 	# Align photos key point limit
-	tiepoints = 4000 	# Align photos tie point limit
-	source = PhotoScan.DataSource.DenseCloudData # Build mesh/DEM source
-	surface = PhotoScan.SurfaceType.Arbitrary # Build mesh surface type
-	quality = PhotoScan.Quality.MediumQuality # Build dense cloud quality
-	filtering = PhotoScan.FilterMode.AggressiveFiltering # Depth filtering
-	interpolation = PhotoScan.Interpolation.EnabledInterpolation # Build mesh interpolation
-	blending = PhotoScan.BlendingMode.MosaicBlending # Blending mode
+	keypoints         = 40000 	# Align photos key point limit
+	tiepoints         = 4000 	# Align photos tie point limit
+	source            = PhotoScan.DataSource.DenseCloudData # Build mesh/DEM source
+	surface           = PhotoScan.SurfaceType.Arbitrary # Build mesh surface type
+	quality           = PhotoScan.Quality.MediumQuality # Build dense cloud quality
+	filtering         = PhotoScan.FilterMode.AggressiveFiltering # Depth filtering
+	interpolation     = PhotoScan.Interpolation.EnabledInterpolation # Build mesh interpolation
+	mosaic_blending   = PhotoScan.BlendingMode.MosaicBlending # Blending mode
+	average_blending  = PhotoScan.BlendingMode.AverageBlending
+	disabled_blending = PhotoScan.BlendingMode.DisabledBlending
+
+
 	face_num = PhotoScan.FaceCount.HighFaceCount # Build mesh polygon count
 	mapping = PhotoScan.MappingMode.GenericMapping #Build texture mapping
 	atlas_size = 4096
@@ -73,7 +77,7 @@ def process(images_path, output_path, reference_path, model_name):
 	list_photos_master = load_images(TYPES, images_path)
 
 
-	# Create Photoscan document
+	# Create PhotoScan document
 	project_file = os.path.join(output_path,"Model.psx")
 	doc = PhotoScan.Document()	
 	doc.save(project_file)
@@ -81,7 +85,7 @@ def process(images_path, output_path, reference_path, model_name):
 	chunk.label = model_name
 
 	
-	print("Saving Photoscan project to: ", project_file)
+	print("Saving PhotoScan project to: ", project_file)
 	print("Chunk label: ", str(chunk.label))
 
 	# Add Images to Chunk
@@ -185,7 +189,7 @@ def process(images_path, output_path, reference_path, model_name):
 		mapping = mapping,
 		count = 1, progress=progress_print)
 	chunk.buildTexture(
-		blending = blending,
+		blending = mosaic_blending,
 		size = atlas_size,
 		progress=progress_print)
 	doc.save()
@@ -221,10 +225,26 @@ def process(images_path, output_path, reference_path, model_name):
 	# Export orthomosaic
 	chunk.buildOrthomosaic(
 		surface = PhotoScan.DataSource.ElevationData,
-		blending = blending,
+		blending = mosaic_blending,
 		fill_holes = True)
 	chunk.exportOrthomosaic(
-		path = os.path.join(output_path, chunk.label + '_orthomosaic.tif'),
+		path = os.path.join(output_path, chunk.label + '_' + str(mosaic_blending) + '_orthomosaic.tif'),
+		projection = chunk.crs)
+
+	chunk.buildOrthomosaic(
+		surface = PhotoScan.DataSource.ElevationData,
+		blending = average_blending,
+		fill_holes = True)
+	chunk.exportOrthomosaic(
+		path = os.path.join(output_path, chunk.label + '_' + str(average_blending) + '_orthomosaic.tif'),
+		projection = chunk.crs)
+
+	chunk.buildOrthomosaic(
+		surface = PhotoScan.DataSource.ElevationData,
+		blending = disabled_blending,
+		fill_holes = True)
+	chunk.exportOrthomosaic(
+		path = os.path.join(output_path, chunk.label + '_' + str(disabled_blending) + '_orthomosaic.tif'),
 		projection = chunk.crs)
 
 	### Export camera poses
@@ -250,7 +270,7 @@ def main():
 	parser.add_argument('images_path', type=str,  help='Path to the folder with images to be processed. Both fore and aft.')
 	parser.add_argument('ref_file', type=str, help='Path to reference file for image data.')
 	parser.add_argument('-n', '--name', help='Model name.')
-	parser.add_argument('-o', '--output', help='Output folder to store the Photoscan output.')
+	parser.add_argument('-o', '--output', help='Output folder to store the PhotoScan output.')
 
 	args = parser.parse_args()
 	
