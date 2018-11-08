@@ -44,7 +44,7 @@ def process(images_path, output_path, reference_path, model_name):
 	# Below code was to enable all available GPUs, was throwing an error.
 	#PhotoScan.app.gpu_mask = 2 ** len(PhotoScan.app.enumGPUDevices()) - 1 #setting GPU mask
 	
-	PhotoScan.app.gpu_mask = 15 # gpu_mask is a bitmask. 3 in binary = 11 so only two GPUs are used.
+	PhotoScan.app.gpu_mask = 3 # gpu_mask is a bitmask. 3 in binary = 11 so only two GPUs are used.
 	if PhotoScan.app.gpu_mask:
 		PhotoScan.app.cpu_enable = False 
 	else:
@@ -109,6 +109,7 @@ def process(images_path, output_path, reference_path, model_name):
 	sensor_fore.height       = chunk.cameras[-1].sensor.height
 	sensor_fore.pixel_size   = [0.00345, 0.00345]
 	sensor_fore.focal_length = 6.7 # Focal length is 10.4mm, 14.6mm effective length in water.
+	sensor_fore.antenna.location_ref   = PhotoScan.Vector([0.38, 0, 0.25])
 
 	sensor_aft              = chunk.addSensor()
 	sensor_aft.label        = "Aft Sensor"
@@ -117,6 +118,7 @@ def process(images_path, output_path, reference_path, model_name):
 	sensor_aft.height       = chunk.cameras[-1].sensor.height
 	sensor_aft.pixel_size   = [0.00345, 0.00345]
 	sensor_aft.focal_length = 6.7
+	sensor_aft.antenna.location_ref  = PhotoScan.Vector([0.53, 0, 0.25])
 
 	for camera in chunk.cameras:
 		if "F" in camera.label:
